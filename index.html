@@ -14,6 +14,7 @@
       * { box-sizing: border-box; }
       body {
         min-height: 100vh;
+        min-height: 100dvh;
         margin: 0;
         display: grid;
         place-items: center;
@@ -24,12 +25,15 @@
           #07091c;
       }
       main {
-        width: min(92vw, 790px);
-        height: min(96vh, 850px);
-        display: flex;
-        flex-direction: column;
+        width: min(100%, 790px);
+        height: 100vh;
+        height: 100dvh;
+        max-height: 850px;
+        display: grid;
+        grid-template-rows: auto auto minmax(0, 1fr) auto auto;
         gap: clamp(10px, 2vh, 20px);
-        padding: clamp(18px, 3vw, 30px);
+        padding: clamp(10px, 2.5vmin, 30px);
+        overflow: hidden;
       }
       header { text-align: center; }
       h1 {
@@ -61,9 +65,11 @@
       }
       .value { font-size: 1.35rem; font-weight: 800; }
       #board {
-        width: min(100%, calc(96vh - 250px));
+        width: min(100%, calc(100dvh - 250px), 620px);
+        max-height: 100%;
         aspect-ratio: 1;
         align-self: center;
+        justify-self: center;
         display: grid;
         grid-template-columns: repeat(6, 1fr);
         gap: clamp(3px, .8vw, 8px);
@@ -106,12 +112,17 @@
         stroke-linecap: round;
       }
       .controls {
-        display: flex;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
         align-items: center;
-        justify-content: space-between;
         gap: 14px;
       }
-      #status { margin: 0; color: #bdc6ee; }
+      #status {
+        min-width: 0;
+        margin: 0;
+        color: #bdc6ee;
+        line-height: 1.25;
+      }
       #status.success { color: #69ff9b; font-weight: 800; }
       #new-game {
         flex: 0 0 auto;
@@ -125,11 +136,30 @@
         cursor: pointer;
       }
       .help { margin: 0; text-align: center; color: #747fae; font-size: .78rem; }
-      @media (max-height: 720px) {
+      @media (max-height: 720px), (max-width: 520px) {
         .subtitle, .help { display: none; }
-        main { padding: 12px; gap: 7px; }
-        h1 { font-size: 1.7rem; }
-        #board { width: min(100%, calc(100vh - 175px)); }
+        main {
+          grid-template-rows: auto auto minmax(0, 1fr) auto;
+          padding: 8px;
+          gap: 7px;
+        }
+        h1 { font-size: clamp(1.35rem, 7vw, 1.9rem); }
+        .stat { padding: 5px; border-radius: 10px; }
+        .value { font-size: 1.05rem; }
+        #board {
+          width: min(100%, calc(100dvh - 155px), 560px);
+          padding: 6px;
+          gap: 3px;
+          border-radius: 14px;
+        }
+        #new-game { padding: 9px 13px; }
+        #status { font-size: .82rem; }
+      }
+      @media (max-width: 390px), (max-height: 560px) {
+        .label { font-size: .6rem; }
+        .controls { gap: 7px; }
+        #new-game { font-size: .78rem; }
+        #status { font-size: .72rem; }
       }
     </style>
   </head>
