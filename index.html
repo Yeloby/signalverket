@@ -30,23 +30,41 @@
         height: 100dvh;
         max-height: 850px;
         display: grid;
-        grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+        grid-template-rows: auto auto minmax(0, 1fr) auto;
         gap: clamp(10px, 2vh, 20px);
         padding: clamp(10px, 2.5vmin, 30px);
         overflow: hidden;
       }
-      header { text-align: center; }
+      header {
+        display: grid;
+        grid-template-columns: 44px 1fr 44px;
+        align-items: center;
+      }
+      .menu-button {
+        grid-column: 3;
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        border: 1px solid #7c8cff77;
+        border-radius: 50%;
+        color: #f7f8ff;
+        background: #11152ddd;
+        font: inherit;
+        font-size: 1.4rem;
+        cursor: pointer;
+      }
       h1 {
+        grid-column: 2;
+        grid-row: 1;
         margin: 0;
         font-size: clamp(2rem, 6vw, 4rem);
         letter-spacing: .13em;
         text-transform: uppercase;
         text-shadow: 0 0 25px #4eeaff88;
       }
-      .subtitle { margin: 5px 0 0; color: #aeb8e8; }
       .stats {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(4, 1fr);
         gap: 12px;
       }
       .stat {
@@ -64,14 +82,18 @@
         text-transform: uppercase;
       }
       .value { font-size: 1.35rem; font-weight: 800; }
-      #board {
-        width: min(100%, calc(100dvh - 250px), 620px);
-        max-height: 100%;
-        aspect-ratio: 1;
-        align-self: center;
-        justify-self: center;
+      .board-space {
+        min-width: 0;
+        min-height: 0;
         display: grid;
-        grid-template-columns: repeat(6, 1fr);
+        place-items: center;
+        container-type: size;
+      }
+      #board {
+        width: min(100cqw, 100cqh, 620px);
+        aspect-ratio: 1;
+        display: grid;
+        grid-template-columns: repeat(var(--board-size, 6), 1fr);
         gap: clamp(3px, .8vw, 8px);
         padding: clamp(7px, 1.4vw, 13px);
         border: 1px solid #7c8cff66;
@@ -100,6 +122,13 @@
         background: linear-gradient(145deg, #183b52, #101b39);
         box-shadow: inset 0 0 18px #36eaff38, 0 0 12px #36eaff35;
       }
+      #board.complete {
+        border-color: #69ff9b;
+        animation: complete-pulse .7s ease-out;
+      }
+      @keyframes complete-pulse {
+        50% { box-shadow: 0 0 55px #69ff9b66, inset 0 0 35px #69ff9b33; }
+      }
       .tile:first-child {
         color: #fff;
         box-shadow: inset 0 0 20px #ff4edc77, 0 0 18px #ff4edc66;
@@ -115,15 +144,20 @@
         display: grid;
         grid-template-columns: minmax(0, 1fr) auto;
         align-items: center;
-        gap: 14px;
+        gap: 12px;
       }
       #status {
+        display: none;
         min-width: 0;
         margin: 0;
         color: #bdc6ee;
         line-height: 1.25;
       }
-      #status.success { color: #69ff9b; font-weight: 800; }
+      #status.success {
+        display: block;
+        color: #69ff9b;
+        font-weight: 800;
+      }
       #new-game {
         flex: 0 0 auto;
         border: 0;
@@ -135,9 +169,67 @@
         font-weight: 900;
         cursor: pointer;
       }
-      .help { margin: 0; text-align: center; color: #747fae; font-size: .78rem; }
+      dialog {
+        width: min(calc(100% - 28px), 430px);
+        padding: 0;
+        border: 1px solid #7c8cff77;
+        border-radius: 22px;
+        color: #f7f8ff;
+        background: #0d1127;
+        box-shadow: 0 25px 90px #000c;
+      }
+      dialog::backdrop {
+        background: #050714bb;
+        backdrop-filter: blur(6px);
+      }
+      .menu-panel { padding: 24px; }
+      .menu-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+      }
+      .menu-heading h2, .about h3 { margin: 0; }
+      .close-menu {
+        width: 38px;
+        height: 38px;
+        border: 0;
+        border-radius: 50%;
+        color: #fff;
+        background: #252b4b;
+        font: inherit;
+        font-size: 1.25rem;
+        cursor: pointer;
+      }
+      .option {
+        display: grid;
+        gap: 7px;
+        margin-top: 20px;
+        color: #bdc6ee;
+      }
+      .option select, .secondary-button {
+        border: 1px solid #7c8cff66;
+        border-radius: 12px;
+        padding: 10px 12px;
+        color: #fff;
+        background: #161b38;
+        font: inherit;
+      }
+      .check-option {
+        grid-template-columns: 1fr auto;
+        align-items: center;
+      }
+      .check-option input { width: 20px; height: 20px; accent-color: #56f5ff; }
+      .secondary-button { margin-top: 16px; cursor: pointer; }
+      .about {
+        margin-top: 24px;
+        padding-top: 20px;
+        border-top: 1px solid #7c8cff44;
+        color: #aeb8e8;
+        line-height: 1.55;
+      }
+      .about p { margin: 8px 0 0; }
       @media (max-height: 720px), (max-width: 520px) {
-        .subtitle, .help { display: none; }
         main {
           grid-template-rows: auto auto minmax(0, 1fr) auto;
           padding: 8px;
@@ -147,19 +239,31 @@
         .stat { padding: 5px; border-radius: 10px; }
         .value { font-size: 1.05rem; }
         #board {
-          width: min(100%, calc(100dvh - 155px), 560px);
           padding: 6px;
           gap: 3px;
           border-radius: 14px;
         }
         #new-game { padding: 9px 13px; }
-        #status { font-size: .82rem; }
+      }
+      @media (max-width: 430px) {
+        .stats { gap: 5px; }
+        .stat { padding-inline: 3px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          scroll-behavior: auto !important;
+          animation-duration: .01ms !important;
+          transition-duration: .01ms !important;
+        }
+      }
+      .no-animations *, .no-animations *::before, .no-animations *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
       }
       @media (max-width: 390px), (max-height: 560px) {
         .label { font-size: .6rem; }
         .controls { gap: 7px; }
         #new-game { font-size: .78rem; }
-        #status { font-size: .72rem; }
       }
     </style>
   </head>
@@ -167,19 +271,47 @@
     <main>
       <header>
         <h1>Signalverket</h1>
-        <p class="subtitle">Roter forbindelsene. Aktiver hele nettet.</p>
+        <button class="menu-button" id="open-menu" type="button" aria-label="Åpne meny">☰</button>
       </header>
       <section class="stats" aria-label="Spillstatus">
         <div class="stat"><span class="label">Tid</span><span class="value" id="time">00:00</span></div>
         <div class="stat"><span class="label">Trekk</span><span class="value" id="moves">0</span></div>
+        <div class="stat"><span class="label">Aktive</span><span class="value" id="powered">1/36</span></div>
+        <div class="stat"><span class="label">Rekord</span><span class="value" id="best">—</span></div>
       </section>
-      <section id="board" aria-label="Signalnett"></section>
+      <div class="board-space">
+        <section id="board" aria-label="Signalnett"></section>
+      </div>
       <div class="controls">
         <p id="status" aria-live="polite">Koble energikilden til hele nettet.</p>
         <button id="new-game" type="button">Nytt nett</button>
       </div>
-      <p class="help">Klikk for å rotere · Høyreklikk motsatt vei · Piltaster og mellomrom</p>
     </main>
+    <dialog id="menu-dialog" aria-labelledby="menu-title">
+      <div class="menu-panel">
+        <div class="menu-heading">
+          <h2 id="menu-title">Meny</h2>
+          <button class="close-menu" id="close-menu" type="button" aria-label="Lukk meny">×</button>
+        </div>
+        <label class="option">
+          Brettstørrelse
+          <select id="board-size">
+            <option value="5">5 × 5 – lett</option>
+            <option value="6">6 × 6 – normal</option>
+            <option value="7">7 × 7 – vanskelig</option>
+          </select>
+        </label>
+        <label class="option check-option">
+          <span>Animasjoner</span>
+          <input id="animations" type="checkbox" checked>
+        </label>
+        <button class="secondary-button" id="reset-best" type="button">Nullstill tidsrekord</button>
+        <section class="about">
+          <h3>Om Signalverket</h3>
+          <p>Et neonfarget logikkspill laget av <strong>Johan Slåttavik</strong>. Koble energikilden til hele nettet ved å rotere forbindelsene.</p>
+        </section>
+      </div>
+    </dialog>
     <script type="module" src="main.js"></script>
   </body>
 </html>

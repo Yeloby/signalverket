@@ -14,6 +14,9 @@ export function rotate(mask, turns = 1) {
 }
 
 export function generateSolvedBoard(size = 6, random = Math.random) {
+  if (!Number.isInteger(size) || size < 1) {
+    throw new RangeError("size must be a positive integer");
+  }
   const board = Array.from({ length: size * size }, () => 0);
   const visited = new Set([0]);
   const frontier = [];
@@ -44,15 +47,30 @@ export function generateSolvedBoard(size = 6, random = Math.random) {
   return board;
 }
 
-export function scrambleBoard(board, random = Math.random) {
-  let scrambled;
-  do {
-    scrambled = board.map((mask) => rotate(mask, Math.floor(random() * 4)));
-  } while (scrambled.every((mask, index) => mask === board[index]));
-  return scrambled;
+export function scrambleBoard(board, random = Math.random, size = Math.sqrt(board.length)) {
+  if (!Number.isInteger(size) || size < 1 || size * size !== board.length) {
+    throw new RangeError("board must be a non-empty square");
+  }
+  if (board.length === 1) return [...board];
+
+  for (let attempt = 0; attempt < 100; attempt += 1) {
+    const scrambled = board.map((mask) => rotate(mask, Math.floor(random() * 4)));
+    if (!isSolved(scrambled, size)) return scrambled;
+  }
+
+  // Also terminates with a pathological random function, such as () => 0.
+  for (let index = 0; index < board.length; index += 1) {
+    for (let turns = 1; turns < 4; turns += 1) {
+      const scrambled = [...board];
+      scrambled[index] = rotate(scrambled[index], turns);
+      if (!isSolved(scrambled, size)) return scrambled;
+    }
+  }
+  return [...board];
 }
 
 export function connectedCells(board, size = 6, source = 0) {
+  if (board.length === 0 || source < 0 || source >= board.length) return new Set();
   const connected = new Set([source]);
   const queue = [source];
 

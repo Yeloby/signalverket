@@ -1,13 +1,14 @@
 # Signalverket
 
-Signalverket er et lite neonfarget logikkspill laget av Johan Slåttavik.
+Signalverket er et neonfarget logikkspill laget av Johan Slåttavik.
 Roter forbindelsene til energien fra øverste venstre hjørne når hele nettet.
 
-## Prototype
+## Funksjoner
 
-- Garantert løsbart 6 × 6-brett
+- Garantert løsbart 6 × 6-brett som aldri starter ferdig
 - Nytt prosedyregenerert nett for hvert spill
-- Tid og antall trekk
+- Tid, antall trekk, fremdrift og lokal tidsrekord
+- Meny med tre vanskelighetsgrader og animasjonsvalg
 - Mus, høyreklikk og tastatur
 - Responsivt grensesnitt
 

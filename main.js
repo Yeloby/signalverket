@@ -6,12 +6,20 @@ import {
   scrambleBoard
 } from "./gameLogic.js";
 
-const size = 6;
+let size = 6;
 const boardElement = document.querySelector("#board");
 const timeElement = document.querySelector("#time");
 const movesElement = document.querySelector("#moves");
+const poweredElement = document.querySelector("#powered");
+const bestElement = document.querySelector("#best");
 const statusElement = document.querySelector("#status");
 const newGameButton = document.querySelector("#new-game");
+const menuDialog = document.querySelector("#menu-dialog");
+const openMenuButton = document.querySelector("#open-menu");
+const closeMenuButton = document.querySelector("#close-menu");
+const boardSizeSelect = document.querySelector("#board-size");
+const animationsToggle = document.querySelector("#animations");
+const resetBestButton = document.querySelector("#reset-best");
 
 let board = [];
 let solvedBoard = [];
@@ -21,6 +29,34 @@ let startedAt = 0;
 let timer = null;
 let selected = 0;
 let complete = false;
+let elapsed = 0;
+
+function loadBest() {
+  try {
+    const value = Number(localStorage.getItem(`signalverket-best-${size}`));
+    return Number.isFinite(value) && value > 0 ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+let bestTime = loadBest();
+
+function loadSettings() {
+  try {
+    const savedSize = Number(localStorage.getItem("signalverket-size"));
+    if ([5, 6, 7].includes(savedSize)) size = savedSize;
+    return localStorage.getItem("signalverket-animations") !== "false";
+  } catch {
+    return true;
+  }
+}
+
+const animationsEnabled = loadSettings();
+bestTime = loadBest();
+boardSizeSelect.value = String(size);
+animationsToggle.checked = animationsEnabled;
+document.documentElement.classList.toggle("no-animations", !animationsEnabled);
 
 function pipeSvg(mask) {
   const lines = [
@@ -39,6 +75,7 @@ function formatTime(milliseconds) {
 
 function render() {
   const powered = connectedCells(board, size);
+  poweredElement.textContent = `${powered.size}/${board.length}`;
   buttons.forEach((button, index) => {
     button.innerHTML = pipeSvg(board[index]);
     button.classList.toggle("powered", powered.has(index));
@@ -50,6 +87,18 @@ function render() {
 function finish() {
   complete = true;
   clearInterval(timer);
+  elapsed = performance.now() - startedAt;
+  timeElement.textContent = formatTime(elapsed);
+  boardElement.classList.add("complete");
+  if (bestTime === null || elapsed < bestTime) {
+    bestTime = elapsed;
+    bestElement.textContent = formatTime(bestTime);
+    try {
+      localStorage.setItem(`signalverket-best-${size}`, String(bestTime));
+    } catch {
+      // The game remains fully playable when storage is unavailable.
+    }
+  }
   statusElement.textContent = `Nettet er stabilt! Fullført på ${timeElement.textContent} med ${moves} trekk.`;
   statusElement.classList.add("success");
 }
@@ -95,6 +144,9 @@ function newGame() {
   timeElement.textContent = "00:00";
   statusElement.textContent = "Koble energikilden til hele nettet.";
   statusElement.classList.remove("success");
+  boardElement.classList.remove("complete");
+  boardElement.style.setProperty("--board-size", String(size));
+  bestElement.textContent = bestTime === null ? "—" : formatTime(bestTime);
   createBoard();
   render();
   timer = setInterval(() => {
@@ -117,4 +169,37 @@ document.addEventListener("keydown", (event) => {
 });
 
 newGameButton.addEventListener("click", newGame);
+openMenuButton.addEventListener("click", () => menuDialog.showModal());
+closeMenuButton.addEventListener("click", () => menuDialog.close());
+menuDialog.addEventListener("click", (event) => {
+  if (event.target === menuDialog) menuDialog.close();
+});
+boardSizeSelect.addEventListener("change", () => {
+  size = Number(boardSizeSelect.value);
+  bestTime = loadBest();
+  try {
+    localStorage.setItem("signalverket-size", String(size));
+  } catch {
+    // Settings remain available for the current session.
+  }
+  menuDialog.close();
+  newGame();
+});
+animationsToggle.addEventListener("change", () => {
+  document.documentElement.classList.toggle("no-animations", !animationsToggle.checked);
+  try {
+    localStorage.setItem("signalverket-animations", String(animationsToggle.checked));
+  } catch {
+    // Settings remain available for the current session.
+  }
+});
+resetBestButton.addEventListener("click", () => {
+  bestTime = null;
+  bestElement.textContent = "—";
+  try {
+    localStorage.removeItem(`signalverket-best-${size}`);
+  } catch {
+    // The visible record is still reset for the current session.
+  }
+});
 newGame();

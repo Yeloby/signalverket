@@ -7,7 +7,8 @@ const projectDirectory = path.dirname(fileURLToPath(import.meta.url));
 function createWindow() {
   const window = new BrowserWindow({
     width: 920,
-    height: 900,
+    height: 820,
+    useContentSize: true,
     minWidth: 360,
     minHeight: 520,
     backgroundColor: "#07091c",
