@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="nb">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Signalverket</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+        background: #07091c;
+        color: #f7f8ff;
+      }
+      * { box-sizing: border-box; }
+      body {
+        min-height: 100vh;
+        margin: 0;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 18% 8%, #1e2769 0, transparent 34%),
+          radial-gradient(circle at 84% 86%, #5a165e 0, transparent 33%),
+          #07091c;
+      }
+      main {
+        width: min(92vw, 790px);
+        height: min(96vh, 850px);
+        display: flex;
+        flex-direction: column;
+        gap: clamp(10px, 2vh, 20px);
+        padding: clamp(18px, 3vw, 30px);
+      }
+      header { text-align: center; }
+      h1 {
+        margin: 0;
+        font-size: clamp(2rem, 6vw, 4rem);
+        letter-spacing: .13em;
+        text-transform: uppercase;
+        text-shadow: 0 0 25px #4eeaff88;
+      }
+      .subtitle { margin: 5px 0 0; color: #aeb8e8; }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+      .stat {
+        padding: 10px;
+        border: 1px solid #4eeaff55;
+        border-radius: 14px;
+        background: #11152dcc;
+        text-align: center;
+      }
+      .label {
+        display: block;
+        color: #98a3d7;
+        font-size: .72rem;
+        letter-spacing: .15em;
+        text-transform: uppercase;
+      }
+      .value { font-size: 1.35rem; font-weight: 800; }
+      #board {
+        width: min(100%, calc(96vh - 250px));
+        aspect-ratio: 1;
+        align-self: center;
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: clamp(3px, .8vw, 8px);
+        padding: clamp(7px, 1.4vw, 13px);
+        border: 1px solid #7c8cff66;
+        border-radius: 22px;
+        background: #090d24cc;
+        box-shadow: 0 20px 70px #0009, inset 0 0 35px #5068ff19;
+      }
+      .tile {
+        min-width: 0;
+        padding: 0;
+        border: 1px solid #7d8bb933;
+        border-radius: 15%;
+        background: linear-gradient(145deg, #18203b, #0d1127);
+        color: #52628b;
+        cursor: pointer;
+        transition: transform .12s, color .2s, box-shadow .2s;
+      }
+      .tile:hover, .tile:focus-visible {
+        transform: scale(1.04);
+        outline: 2px solid #fff;
+        outline-offset: 1px;
+      }
+      .tile.selected { border-color: #fff8; }
+      .tile.powered {
+        color: #56f5ff;
+        background: linear-gradient(145deg, #183b52, #101b39);
+        box-shadow: inset 0 0 18px #36eaff38, 0 0 12px #36eaff35;
+      }
+      .tile:first-child {
+        color: #fff;
+        box-shadow: inset 0 0 20px #ff4edc77, 0 0 18px #ff4edc66;
+      }
+      .tile svg { display: block; width: 100%; height: 100%; }
+      .tile path, .tile circle {
+        fill: currentColor;
+        stroke: currentColor;
+        stroke-width: 13;
+        stroke-linecap: round;
+      }
+      .controls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+      }
+      #status { margin: 0; color: #bdc6ee; }
+      #status.success { color: #69ff9b; font-weight: 800; }
+      #new-game {
+        flex: 0 0 auto;
+        border: 0;
+        border-radius: 999px;
+        padding: 12px 20px;
+        color: #081020;
+        background: linear-gradient(90deg, #55efff, #f75cda);
+        font: inherit;
+        font-weight: 900;
+        cursor: pointer;
+      }
+      .help { margin: 0; text-align: center; color: #747fae; font-size: .78rem; }
+      @media (max-height: 720px) {
+        .subtitle, .help { display: none; }
+        main { padding: 12px; gap: 7px; }
+        h1 { font-size: 1.7rem; }
+        #board { width: min(100%, calc(100vh - 175px)); }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Signalverket</h1>
+        <p class="subtitle">Roter forbindelsene. Aktiver hele nettet.</p>
+      </header>
+      <section class="stats" aria-label="Spillstatus">
+        <div class="stat"><span class="label">Tid</span><span class="value" id="time">00:00</span></div>
+        <div class="stat"><span class="label">Trekk</span><span class="value" id="moves">0</span></div>
+      </section>
+      <section id="board" aria-label="Signalnett"></section>
+      <div class="controls">
+        <p id="status" aria-live="polite">Koble energikilden til hele nettet.</p>
+        <button id="new-game" type="button">Nytt nett</button>
+      </div>
+      <p class="help">Klikk for å rotere · Høyreklikk motsatt vei · Piltaster og mellomrom</p>
+    </main>
+    <script type="module" src="main.js"></script>
+  </body>
+</html>
