@@ -69,6 +69,19 @@ export function scrambleBoard(board, random = Math.random, size = Math.sqrt(boar
   return [...board];
 }
 
+export function rotationsToSolution(board, solvedBoard) {
+  if (board.length !== solvedBoard.length) {
+    throw new RangeError("boards must have the same length");
+  }
+
+  return board.map((mask, index) => {
+    for (let turns = 0; turns < 4; turns += 1) {
+      if (rotate(mask, turns) === solvedBoard[index]) return turns;
+    }
+    throw new Error(`tile ${index} cannot be rotated to its solved state`);
+  });
+}
+
 export function connectedCells(board, size = 6, source = 0) {
   if (board.length === 0 || source < 0 || source >= board.length) return new Set();
   const connected = new Set([source]);

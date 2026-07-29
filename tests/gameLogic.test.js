@@ -5,6 +5,7 @@ import {
   generateSolvedBoard,
   isSolved,
   rotate,
+  rotationsToSolution,
   scrambleBoard
 } from "../gameLogic.js";
 
@@ -39,4 +40,30 @@ test("stokking terminerer selv med en konstant tilfeldig verdi", () => {
 test("ugyldig brettstørrelse avvises", () => {
   assert.throws(() => generateSolvedBoard(0), RangeError);
   assert.throws(() => scrambleBoard([1, 2]), RangeError);
+  assert.throws(() => rotationsToSolution([1], [1, 2]), RangeError);
+});
+
+function seededRandom(seed) {
+  let state = seed >>> 0;
+  return () => {
+    state = (1664525 * state + 1013904223) >>> 0;
+    return state / 2 ** 32;
+  };
+}
+
+test("alle nivåer er garantert løsbare etter stokking", () => {
+  for (const size of [5, 6, 7]) {
+    for (let seed = 1; seed <= 500; seed += 1) {
+      const random = seededRandom(seed * 97 + size);
+      const solved = generateSolvedBoard(size, random);
+      const scrambled = scrambleBoard(solved, random, size);
+      const turns = rotationsToSolution(scrambled, solved);
+      const restored = scrambled.map((mask, index) => rotate(mask, turns[index]));
+
+      assert.equal(isSolved(solved, size), true, `løsningsbrett ${size}×${size}, seed ${seed}`);
+      assert.equal(isSolved(scrambled, size), false, `startbrett ${size}×${size}, seed ${seed}`);
+      assert.deepEqual(restored, solved, `rotasjonsløsning ${size}×${size}, seed ${seed}`);
+      assert.equal(isSolved(restored, size), true, `gjenopprettet brett ${size}×${size}, seed ${seed}`);
+    }
+  }
 });
